@@ -79,7 +79,7 @@ class _RegisterFormState extends State<RegisterForm> {
     return Container(
         child: Column(
             children: [
-              Text('Login to Tuwitta', style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold)),
+              Text('Join Tuwitta', style: TextStyle(fontSize: 32.0, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.0),
               TextField(
                   controller: _usernameController,
