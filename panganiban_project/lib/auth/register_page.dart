@@ -101,6 +101,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 controller: _lastNameController,
                 decoration: textFieldStyle('Last Name')
               ),
+              SizedBox(height: 16.0),
               SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
