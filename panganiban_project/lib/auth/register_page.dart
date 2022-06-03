@@ -7,12 +7,12 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
+      resizeToAvoidBottomInset: false,
+      body: SingleChildScrollView(
+        child: SafeArea(
             child: Padding(
                 padding: EdgeInsets.all(25.0),
-                child: Align(
-                    alignment: Alignment.center,
-                    child: Column(
+                child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: const [
@@ -24,10 +24,10 @@ class RegisterPage extends StatelessWidget {
                           SizedBox(height: 20.0),
                           RegisterForm()
                         ]
-                    )
                 )
             )
         )
+      )
     );
   }
 }
