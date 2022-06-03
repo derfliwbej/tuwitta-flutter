@@ -106,7 +106,7 @@ class _RegisterFormState extends State<RegisterForm> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {},
-                    child: const Text('Login', style: TextStyle(fontSize: 16.0)),
+                    child: const Text('Register', style: TextStyle(fontSize: 16.0)),
                     style: buttonStyle,
                   )
               )
