@@ -7,25 +7,24 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(25.0),
-          child: Align(
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Icon(
-                  FontAwesomeIcons.twitter,
-                  color: Colors.white,
-                  size: 28.0,
-                ),
-                SizedBox(height: 20.0),
-                LoginForm()
-              ]
+      body: SingleChildScrollView(
+        child: SafeArea(
+            child: Padding(
+                padding: EdgeInsets.all(25.0),
+                child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: const [
+                          Icon(
+                            FontAwesomeIcons.twitter,
+                            color: Colors.white,
+                            size: 28.0,
+                          ),
+                          SizedBox(height: 20.0),
+                          LoginForm()
+                        ]
+                    )
             )
-          )
         )
       )
     );
