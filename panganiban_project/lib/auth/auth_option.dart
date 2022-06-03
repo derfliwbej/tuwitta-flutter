@@ -55,7 +55,9 @@ class AuthOptionButtons extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/register');
+              },
               child: const Text('Register'),
               style: buttonStyle
             )
