@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import './auth/auth_option.dart';
+import './auth/login_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +23,6 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       initialRoute: '/',
       routes: {
-        '/': (context) => const MyHomePage(),
         '/login': (context) => const LoginPage(),
       },
       theme: ThemeData(
