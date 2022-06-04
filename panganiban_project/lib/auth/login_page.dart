@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/secure_storage.dart';
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+Future<http.Response> login(String username, String password) {
+  print('${username} ${password}');
+
+  return http.post(
+    Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/login"),
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: jsonEncode(<String, String>{
+      "username": username,
+      "password": password,
+    })
+  );
+}
+
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -92,7 +116,28 @@ class _LoginFormState extends State<LoginForm> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                String username = _usernameController.text;
+                String password = _passwordController.text;
+
+                http.Response res = await login(username, password);
+
+                if(res.statusCode == 200) {
+                  // Extract token
+                  String token = jsonDecode(res.body)["data"]["token"];
+
+                  // Save token to secure storage then navigate to homepage
+                  await SecureStorage.setToken(token);
+                  await SecureStorage.setUsername(username);
+
+                  print("Printing token!");
+                  print(token);
+
+                  Navigator.pushNamed(context, '/feed');
+                } else {
+                  print('Login failed. Status code: ${res.statusCode}');
+                }
+              },
               child: const Text('Login', style: TextStyle(fontSize: 16.0)),
               style: buttonStyle,
             )
