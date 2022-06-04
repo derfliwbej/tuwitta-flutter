@@ -1,6 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../utils/secure_storage.dart';
+
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:http/http.dart' as http;
+
+Future<http.Response> register(String username, String password, String firstName, String lastName) {
+  const token = "Zxi!!YbZ4R9GmJJ!h5tJ9E5mghwo4mpBs@*!BLoT6MFLHdMfUA%";
+
+  return http.post(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/user"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, String>{
+        "username": username,
+        "password": password,
+        "firstName": firstName,
+        "lastName": lastName,
+      })
+  );
+}
+
+Future<http.Response> login(String username, String password) async {
+  return http.post(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/login"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode(<String, String>{
+        "username": username,
+        "password": password,
+      })
+  );
+}
+
 class RegisterPage extends StatelessWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -105,7 +146,32 @@ class _RegisterFormState extends State<RegisterForm> {
               SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      String username = _usernameController.text;
+                      String password = _passwordController.text;
+                      String firstName = _firstNameController.text;
+                      String lastName = _lastNameController.text;
+
+                      http.Response regRes = await register(username, password, firstName, lastName);
+
+                      if(regRes.statusCode == 200) {
+                        http.Response loginRes = await login(username, password);
+
+                        if(loginRes.statusCode == 200) {
+                          // Extract token
+                          String token = jsonDecode(loginRes.body)["data"]["token"];
+
+                          await SecureStorage.setToken(token);
+                          await SecureStorage.setUsername(username);
+
+                          Navigator.pushNamed(context, '/feed');
+                        } else {
+                          print("Login failed. Status code: ${loginRes.statusCode}");
+                        }
+                      } else {
+                        print("Register failed. Status code: ${regRes.statusCode}");
+                      }
+                    },
                     child: const Text('Register', style: TextStyle(fontSize: 16.0)),
                     style: buttonStyle,
                   )
