@@ -20,4 +20,13 @@ class SecureStorage {
 
     return jwt;
   }
+
+  static Future<String?> getUsername() async {
+    final username = await _storage.read(key: "username");
+
+    return username;
+  }
+
+  static Future deleteToken() async =>
+      await _storage.delete(key: "jwt");
 }
