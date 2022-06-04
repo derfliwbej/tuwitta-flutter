@@ -14,4 +14,10 @@ class SecureStorage {
 
   static Future setLastName(String lastName) async =>
       await _storage.write(key: "lastName", value: lastName);
+
+  static Future<String?> getToken() async {
+    final jwt = await _storage.read(key: "jwt");
+
+    return jwt;
+  }
 }
