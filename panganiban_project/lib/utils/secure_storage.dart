@@ -29,4 +29,13 @@ class SecureStorage {
 
   static Future deleteToken() async =>
       await _storage.delete(key: "jwt");
+
+  static Future deleteUsername() async =>
+      await _storage.delete(key: "username");
+
+  static Future deleteFirstName() async =>
+      await _storage.delete(key: "firstName");
+
+  static Future deleteLastName() async =>
+      await _storage.delete(key: "lastName");
 }
