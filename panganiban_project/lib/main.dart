@@ -5,6 +5,8 @@ import './auth/auth_option.dart';
 import './auth/login_page.dart';
 import './auth/register_page.dart';
 
+import './feed/feed.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -26,6 +28,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/feed': (context) => const FeedPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
