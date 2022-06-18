@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cupertino_icons/cupertino_icons.dart';
 
+import '../profile/view_profile.dart';
+import '../profile/ViewProfileArguments.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -195,7 +198,13 @@ class DrawerWidget extends StatelessWidget {
               title: Text('View Profile', style: listTextStyle),
               leading: Icon(Icons.account_box, color: Colors.white),
               onTap: () {
-
+                Navigator.pushNamed(
+                  context,
+                  ViewProfilePage.routeName,
+                  arguments: ViewProfileArguments(
+                    username!, firstName!, lastName!
+                  )
+                );
               }
             ),
             ListTile(
