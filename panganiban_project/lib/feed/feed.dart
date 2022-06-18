@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -81,6 +82,33 @@ class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: new Drawer(),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.blue.withOpacity(0.0),
+              child: Image.asset("assets/images/profile_icon.png"),
+            ),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
+        backgroundColor: const Color(0xFF15202b),
+        bottom: PreferredSize(
+          child: Container(
+            color: const Color(0xFF425364),
+            height: 1.0,
+          ),
+          preferredSize: Size.fromHeight(1.0),
+        ),
+        title: const Icon(
+            FontAwesomeIcons.twitter,
+            color: Colors.white,
+        )
+      ),
       body: SafeArea(
         child: Container(
           width: double.infinity,
