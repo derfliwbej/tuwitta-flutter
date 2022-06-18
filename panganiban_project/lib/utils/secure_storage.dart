@@ -27,6 +27,18 @@ class SecureStorage {
     return username;
   }
 
+  static Future<String?> getFirstName() async {
+    final firstName = await _storage.read(key: "firstName");
+
+    return firstName;
+  }
+
+  static Future<String?> getLastName() async {
+    final lastName = await _storage.read(key: "lastName");
+
+    return lastName;
+  }
+
   static Future deleteToken() async =>
       await _storage.delete(key: "jwt");
 
