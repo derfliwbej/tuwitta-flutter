@@ -25,6 +25,17 @@ Future<http.Response> login(String username, String password) {
   );
 }
 
+Future<http.Response> getUserInfo(String username) async {
+  final token = await SecureStorage.getToken();
+
+  return http.get(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/user/$username"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+}
+
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -130,8 +141,19 @@ class _LoginFormState extends State<LoginForm> {
                   await SecureStorage.setToken(token);
                   await SecureStorage.setUsername(username);
 
+                  http.Response info = await getUserInfo(username);
+
+                  String firstName = jsonDecode(info.body)["data"]["firstName"];
+                  String lastName = jsonDecode(info.body)["data"]["lastName"];
+
+                  await SecureStorage.setFirstName(firstName);
+                  await SecureStorage.setLastName(lastName);
+
                   print("Printing token!");
                   print(token);
+
+                  print("Printing first and last name!");
+                  print("$firstName $lastName");
 
                   Navigator.pushNamed(context, '/feed');
                 } else {
