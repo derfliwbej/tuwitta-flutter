@@ -5,6 +5,7 @@ import 'package:cupertino_icons/cupertino_icons.dart';
 
 import '../profile/view_profile.dart';
 import '../profile/ViewProfileArguments.dart';
+import '../profile/edit_profile.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -211,7 +212,10 @@ class DrawerWidget extends StatelessWidget {
               title: Text('Edit Profile', style: listTextStyle),
               leading: Icon(CupertinoIcons.pencil, color: Colors.white),
               onTap: () {
-
+                Navigator.pushNamed(
+                  context,
+                  EditProfilePage.routeName
+                );
               }
             ),
             ListTile(
