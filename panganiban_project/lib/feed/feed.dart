@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cupertino_icons/cupertino_icons.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -42,6 +44,8 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   String? username;
+  String? firstName;
+  String? lastName;
 
   @override
   void initState() {
@@ -52,9 +56,13 @@ class _FeedPageState extends State<FeedPage> {
 
   Future init() async {
     final username = await SecureStorage.getUsername();
+    final firstName = await SecureStorage.getFirstName();
+    final lastName = await SecureStorage.getLastName();
 
     setState(() {
       this.username = username;
+      this.firstName = firstName;
+      this.lastName = lastName;
     });
   }
 
@@ -82,7 +90,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: new Drawer(),
+      drawer: DrawerWidget(username: username, firstName: firstName, lastName: lastName),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -143,4 +151,71 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 }
+
+class DrawerWidget extends StatelessWidget {
+  final String? username;
+  final String? firstName;
+  final String? lastName;
+
+  const DrawerWidget({
+    Key? key,
+    required this.username,
+    required this.firstName,
+    required this.lastName
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle listTextStyle = TextStyle(
+      fontSize: 18.0,
+      fontWeight: FontWeight.bold,
+    );
+
+    return Drawer(
+        backgroundColor: const Color(0xFF15202b),
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.blue.withOpacity(0.0),
+                    child: Image.asset("assets/images/profile_icon.png"),
+                  ),
+                  SizedBox(height: 10.0),
+                  Text('@$username'),
+                  SizedBox(height: 10.0),
+                  Text('$firstName $lastName', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+                ]
+              )
+            ),
+            ListTile(
+              title: Text('View Profile', style: listTextStyle),
+              leading: Icon(Icons.account_box, color: Colors.white),
+              onTap: () {
+
+              }
+            ),
+            ListTile(
+              title: Text('Edit Profile', style: listTextStyle),
+              leading: Icon(CupertinoIcons.pencil, color: Colors.white),
+              onTap: () {
+
+              }
+            ),
+            ListTile(
+              title: Text('Logout', style: listTextStyle),
+              leading: Icon(CupertinoIcons.back, color: Colors.white),
+              onTap: () {
+
+              }
+            ),
+          ],
+        )
+    );
+  }
+}
+
 
