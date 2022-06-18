@@ -222,7 +222,8 @@ class DrawerWidget extends StatelessWidget {
               title: Text('Logout', style: listTextStyle),
               leading: Icon(CupertinoIcons.back, color: Colors.white),
               onTap: () {
-
+                logout();
+                Navigator.pushNamed(context, '/');
               }
             ),
           ],
