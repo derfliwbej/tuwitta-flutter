@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
+import '../utils/route_observer.dart';
 
 Future<http.Response> authRequest() async {
   final token = await SecureStorage.getToken();
@@ -54,20 +55,6 @@ class _FeedPageState extends State<FeedPage> {
   @override
   void initState() {
     super.initState();
-
-    init();
-  }
-
-  Future init() async {
-    final username = await SecureStorage.getUsername();
-    final firstName = await SecureStorage.getFirstName();
-    final lastName = await SecureStorage.getLastName();
-
-    setState(() {
-      this.username = username;
-      this.firstName = firstName;
-      this.lastName = lastName;
-    });
   }
 
   Future<void> _showDialog(int statusCode) async {
@@ -94,7 +81,7 @@ class _FeedPageState extends State<FeedPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerWidget(username: username, firstName: firstName, lastName: lastName),
+      drawer: DrawerWidget(),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
@@ -156,17 +143,55 @@ class _FeedPageState extends State<FeedPage> {
   }
 }
 
-class DrawerWidget extends StatelessWidget {
-  final String? username;
-  final String? firstName;
-  final String? lastName;
+class DrawerWidget extends StatefulWidget {
+  const DrawerWidget({Key? key}) : super(key: key);
 
-  const DrawerWidget({
-    Key? key,
-    required this.username,
-    required this.firstName,
-    required this.lastName
-  }) : super(key: key);
+  @override
+  State<DrawerWidget> createState() => _DrawerWidgetState();
+}
+
+class _DrawerWidgetState extends State<DrawerWidget>  with RouteAware {
+  String? username;
+  String? firstName;
+  String? lastName;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Observer.routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    init();
+  }
+
+  @override
+  void initState(){
+    super.initState();
+
+    init();
+  }
+
+  void init() async {
+    final username = await SecureStorage.getUsername();
+    final firstName = await SecureStorage.getFirstName();
+    final lastName = await SecureStorage.getLastName();
+
+    print("INITIALIZED");
+
+    setState(() {
+      this.username = username;
+      this.firstName = firstName;
+      this.lastName = lastName;
+    });
+  }
+
+  @override
+  void dispose() {
+    Observer.routeObserver.unsubscribe(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,55 +206,54 @@ class DrawerWidget extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.blue.withOpacity(0.0),
-                    child: Image.asset("assets/images/profile_icon.png"),
-                  ),
-                  SizedBox(height: 10.0),
-                  Text('@$username'),
-                  SizedBox(height: 10.0),
-                  Text('$firstName $lastName', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
-                ]
-              )
+                child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.blue.withOpacity(0.0),
+                        child: Image.asset("assets/images/profile_icon.png"),
+                      ),
+                      SizedBox(height: 10.0),
+                      Text('@$username'),
+                      SizedBox(height: 10.0),
+                      Text('$firstName $lastName', style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+                    ]
+                )
             ),
             ListTile(
-              title: Text('View Profile', style: listTextStyle),
-              leading: Icon(Icons.account_box, color: Colors.white),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  ViewProfilePage.routeName,
-                  arguments: ViewProfileArguments(
-                    username!, firstName!, lastName!
-                  )
-                );
-              }
+                title: Text('View Profile', style: listTextStyle),
+                leading: Icon(Icons.account_box, color: Colors.white),
+                onTap: () {
+                  Navigator.pushNamed(
+                      context,
+                      ViewProfilePage.routeName,
+                      arguments: ViewProfileArguments(
+                          username!, firstName!, lastName!
+                      )
+                  );
+                }
             ),
             ListTile(
-              title: Text('Edit Profile', style: listTextStyle),
-              leading: Icon(CupertinoIcons.pencil, color: Colors.white),
-              onTap: () {
-                Navigator.pushNamed(
-                  context,
-                  EditProfilePage.routeName
-                );
-              }
+                title: Text('Edit Profile', style: listTextStyle),
+                leading: Icon(CupertinoIcons.pencil, color: Colors.white),
+                onTap: () {
+                  Navigator.pushNamed(
+                      context,
+                      EditProfilePage.routeName
+                  );
+                }
             ),
             ListTile(
-              title: Text('Logout', style: listTextStyle),
-              leading: Icon(CupertinoIcons.back, color: Colors.white),
-              onTap: () {
-                logout();
-                Navigator.pushNamed(context, '/');
-              }
+                title: Text('Logout', style: listTextStyle),
+                leading: Icon(CupertinoIcons.back, color: Colors.white),
+                onTap: () {
+                  logout();
+                  Navigator.pushNamed(context, '/');
+                }
             ),
           ],
         )
     );
   }
 }
-
 
