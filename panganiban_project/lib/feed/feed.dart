@@ -14,6 +14,8 @@ import 'package:http/http.dart' as http;
 import '../utils/secure_storage.dart';
 import '../utils/route_observer.dart';
 
+import '../models/PostModel.dart';
+
 Future<http.Response> authRequest() async {
   final token = await SecureStorage.getToken();
 
@@ -49,11 +51,11 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   String? username;
-  String? firstName;
-  String? lastName;
+  Future<List<Post>>? _currentPosts;
 
   @override
   void initState() {
+    _currentPosts = getInitialPosts();
     super.initState();
   }
 
@@ -76,6 +78,29 @@ class _FeedPageState extends State<FeedPage> {
         );
       }
     );
+  }
+
+  Future<List<Post>> getInitialPosts() async {
+    final token = await SecureStorage.getToken();
+
+    final res = await http.get(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post?limit=15"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+    final status = res.statusCode;
+    print('Status code: $status');
+
+    if(res.statusCode == 200) {
+      final posts = jsonDecode(res.body)["data"];
+
+      return posts.map<Post>((post) => Post.fromJson(post)).toList();
+    } else {
+      List<Post> list = [];
+      return list;
+    }
   }
 
   @override
@@ -109,34 +134,22 @@ class _FeedPageState extends State<FeedPage> {
         )
       ),
       body: SafeArea(
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Welcome $username!', style: const TextStyle(
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              )),
-              SizedBox(height: 20.0),
-              ElevatedButton(
-                  child: Text('Make authenticated request'),
-                  onPressed: () async {
-                    http.Response res = await authRequest();
-
-                    return _showDialog(res.statusCode);
-                  }
-              ),
-              ElevatedButton(
-                  child: Text('Logout'),
-                  onPressed: () {
-                    logout();
-                    Navigator.pushNamed(context, '/');
-                  }
-              )
-            ]
-          )
+        child: FutureBuilder<List<Post>>(
+          future: _currentPosts,
+          builder: (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
+            if(snapshot.hasData) {
+              return ListView.separated(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (BuildContext context, int index) => PostItem(post: snapshot.data![index]),
+                separatorBuilder: (BuildContext context, int index) => Divider(height: 1, color: Color(0xFF425364))
+              );
+            } else if(snapshot.hasError) {
+              print(snapshot.error);
+              return Text('Error');
+            } else {
+              return CircularProgressIndicator();
+            }
+          }
         )
       )
     );
@@ -257,3 +270,22 @@ class _DrawerWidgetState extends State<DrawerWidget>  with RouteAware {
   }
 }
 
+class PostItem extends StatelessWidget {
+  final Post post;
+
+  const PostItem({ Key? key, required this.post }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      key: ValueKey<String>(post.id),
+      leading: CircleAvatar(
+        radius: 18,
+        backgroundColor: Colors.blue.withOpacity(0.0),
+        child: Image.asset("assets/images/user_icon.png"),
+      ),
+      title: Text(post.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
+      subtitle: Text(post.text, style: TextStyle(color: Colors.white)),
+    );
+  }
+}
