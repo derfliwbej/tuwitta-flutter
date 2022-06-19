@@ -75,6 +75,17 @@ class _FormWidgetState extends State<FormWidget> {
     _newPasswordController.clear();
   }
 
+  Map<String, String> toMap(String firstName, String lastName, String oldPassword, String newPassword) {
+    Map<String, String> map = new Map<String, String>();
+
+    if(firstName.isNotEmpty) map['firstName'] = firstName;
+    if(lastName.isNotEmpty) map['lastName'] = lastName;
+    if(oldPassword.isNotEmpty) map['oldPassword'] = oldPassword;
+    if(newPassword.isNotEmpty) map['newPassword'] = newPassword;
+
+    return map;
+  }
+
   Future<http.Response> save(String firstName, String lastName, String oldPassword, String newPassword) async {
     final token = await SecureStorage.getToken();
     final username = await SecureStorage.getUsername();
@@ -86,12 +97,7 @@ class _FormWidgetState extends State<FormWidget> {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token'
         },
-        body: jsonEncode(<String, String>{
-          "firstName": firstName,
-          "lastName": lastName,
-          "oldPassword": oldPassword,
-          "newPassword": newPassword,
-        })
+        body: jsonEncode(toMap(firstName, lastName, oldPassword, newPassword))
     );
   }
 
@@ -153,8 +159,8 @@ class _FormWidgetState extends State<FormWidget> {
                   if(res.statusCode == 200) {
                     // Save updated information to secure storage
                     print("SUCCESS");
-                    await SecureStorage.setFirstName(firstName);
-                    await SecureStorage.setLastName(lastName);
+                    if(firstName.isNotEmpty) await SecureStorage.setFirstName(firstName);
+                    if(lastName.isNotEmpty) await SecureStorage.setLastName(lastName);
                   }
 
                   clearFields();
