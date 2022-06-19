@@ -1,7 +1,7 @@
 class Post {
   final String id;
   final String text;
-  final String author;
+  final String username;
   final bool public;
   final int date;
   final int updated;
@@ -9,7 +9,7 @@ class Post {
   const Post({
     required this.id,
     required this.text,
-    required this.author,
+    required this.username,
     required this.public,
     required this.date,
     required this.updated,
@@ -19,7 +19,7 @@ class Post {
     return Post(
       id: json['id'],
       text: json['text'],
-      author: json['author'],
+      username: json['username'],
       public: json['public'],
       date: json['date'],
       updated: json['updated']
