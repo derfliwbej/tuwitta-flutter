@@ -9,6 +9,8 @@ import './feed/feed.dart';
 import './profile/view_profile.dart';
 import './profile/edit_profile.dart';
 
+import './utils/route_observer.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -27,6 +29,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       initialRoute: '/',
+      navigatorObservers: [Observer.routeObserver],
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
