@@ -51,40 +51,31 @@ class FeedPage extends StatefulWidget {
 
 class _FeedPageState extends State<FeedPage> {
   String? username;
-  Future<List<Post>>? _currentPosts;
+  List<Post> _currentPosts = [];
+  ScrollController _scrollController = ScrollController();
+  bool hasMore = true;
+  bool isLoading = false;
 
   @override
   void initState() {
-    _currentPosts = getInitialPosts();
+    getInitialPosts();
+    _scrollController.addListener(() {
+      if(_scrollController.position.pixels >= _scrollController.position.maxScrollExtent) {
+        addPosts();
+      }
+    });
     super.initState();
   }
 
-  Future<void> _showDialog(int statusCode) async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xFF15202b),
-          title: const Text('Status Code'),
-          content: Text('Status code is $statusCode'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              }
-            )
-          ]
-        );
-      }
-    );
-  }
+  Future getInitialPosts() async {
+    if(isLoading) return;
+    isLoading = true;
 
-  Future<List<Post>> getInitialPosts() async {
+    final limit = 30;
     final token = await SecureStorage.getToken();
 
     final res = await http.get(
-      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post?limit=15"),
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post?limit=$limit"),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
@@ -95,15 +86,69 @@ class _FeedPageState extends State<FeedPage> {
         return Post.fromJson(post);
       }).toList();
 
+      if(postsList.length < limit) {
+        setState(() {
+          hasMore = false;
+        });
+      }
+
       postsList.removeWhere((post) => !post.public);
 
-      return postsList;
-    } else {
-      List<Post> list = [];
-      return list;
+      if(postsList.length == 0) {
+        setState(() {
+          hasMore = false;
+        });
+      }
+
+      setState(() {
+        isLoading = false;
+        _currentPosts.addAll(postsList);
+      });
     }
   }
 
+  Future addPosts() async {
+    if (isLoading) return;
+    isLoading = true;
+
+    final limit = 15;
+    final token = await SecureStorage.getToken();
+    String lastPostId = _currentPosts[_currentPosts.length - 1].id;
+
+    final res = await http.get(
+        Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post?limit=$limit&next=$lastPostId"),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        });
+
+    print(res.statusCode);
+
+    if(res.statusCode == 200) {
+      List<Post> newPosts = jsonDecode(res.body)["data"].map<Post>((post) {
+        return Post.fromJson(post);
+      }).toList();
+
+      if(newPosts.length < limit) {
+        setState(() {
+          hasMore = false;
+        });
+      }
+
+      newPosts.removeWhere((post) => !post.public);
+
+      if(newPosts.isEmpty) {
+        setState(() {
+          hasMore = false;
+        });
+      }
+
+      setState(() {
+        isLoading = false;
+        _currentPosts.addAll(newPosts);
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -135,23 +180,19 @@ class _FeedPageState extends State<FeedPage> {
         )
       ),
       body: SafeArea(
-        child: FutureBuilder<List<Post>>(
-          future: _currentPosts,
-          builder: (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
-            if(snapshot.hasData) {
-              return ListView.separated(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (BuildContext context, int index) => PostItem(post: snapshot.data![index]),
-                separatorBuilder: (BuildContext context, int index) => Divider(height: 1, color: Color(0xFF425364))
-              );
-            } else if(snapshot.hasError) {
-              print(snapshot.error);
-              return Text('Error');
+        child: _currentPosts.isNotEmpty ? ListView.separated(
+          shrinkWrap: true,
+          controller: _scrollController,
+          itemCount: _currentPosts.length + 1,
+          itemBuilder: (BuildContext context, int index) {
+            if(index < _currentPosts.length) {
+              return PostItem(post: _currentPosts[index]);
             } else {
-              return CircularProgressIndicator();
+              return Padding(padding: EdgeInsets.only(top: 15.0, bottom: 15.0), child: Center(child: hasMore ? CircularProgressIndicator() : Container()));
             }
-          }
-        )
+          },
+          separatorBuilder: (BuildContext context, int index) => Divider(height: 1, color: Color(0xFF425364))
+        ) : Center(child: CircularProgressIndicator())
       )
     );
   }
