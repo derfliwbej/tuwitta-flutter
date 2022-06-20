@@ -90,13 +90,14 @@ class _FeedPageState extends State<FeedPage> {
         'Authorization': 'Bearer $token'
       });
 
-    final status = res.statusCode;
-    print('Status code: $status');
-
     if(res.statusCode == 200) {
-      final posts = jsonDecode(res.body)["data"];
+      List<Post> postsList = jsonDecode(res.body)["data"].map<Post>((post) {
+        return Post.fromJson(post);
+      }).toList();
 
-      return posts.map<Post>((post) => Post.fromJson(post)).toList();
+      postsList.removeWhere((post) => !post.public);
+
+      return postsList;
     } else {
       List<Post> list = [];
       return list;
