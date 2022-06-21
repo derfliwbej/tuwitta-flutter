@@ -8,6 +8,7 @@ import './auth/register_page.dart';
 import './feed/feed.dart';
 import './profile/view_profile.dart';
 import './profile/edit_profile.dart';
+import './feed/view_post.dart';
 
 import './utils/route_observer.dart';
 
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/feed': (context) => const FeedPage(),
         ViewProfilePage.routeName: (context) => const ViewProfilePage(),
         EditProfilePage.routeName: (context) => const EditProfilePage(),
+        ViewPostPage.routeName: (context) => const ViewPostPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
