@@ -69,7 +69,10 @@ class _FeedPageState extends State<FeedPage> {
 
   Future getInitialPosts() async {
     if(isLoading) return;
-    isLoading = true;
+
+    setState(() {
+      isLoading = true;
+    });
 
     final limit = 30;
     final token = await SecureStorage.getToken();
@@ -109,7 +112,10 @@ class _FeedPageState extends State<FeedPage> {
 
   Future addPosts() async {
     if (isLoading) return;
-    isLoading = true;
+
+    setState(() {
+      isLoading = true;
+    });
 
     final limit = 15;
     final token = await SecureStorage.getToken();
@@ -188,7 +194,7 @@ class _FeedPageState extends State<FeedPage> {
             if(index < _currentPosts.length) {
               return PostItem(post: _currentPosts[index]);
             } else {
-              return Padding(padding: EdgeInsets.only(top: 15.0, bottom: 15.0), child: Center(child: hasMore ? CircularProgressIndicator() : Container()));
+              return Padding(padding: EdgeInsets.only(top: 15.0, bottom: 15.0), child: Center(child: hasMore && isLoading ? CircularProgressIndicator() : Container()));
             }
           },
           separatorBuilder: (BuildContext context, int index) => Divider(height: 1, color: Color(0xFF425364))
