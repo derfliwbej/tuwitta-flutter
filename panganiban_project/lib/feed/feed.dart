@@ -6,6 +6,8 @@ import 'package:cupertino_icons/cupertino_icons.dart';
 import '../profile/view_profile.dart';
 import '../profile/ViewProfileArguments.dart';
 import '../profile/edit_profile.dart';
+import '../feed/ViewPostArguments.dart';
+import '../feed/view_post.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -334,6 +336,15 @@ class PostItem extends StatelessWidget {
       ),
       title: Text(post.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
       subtitle: Text(post.text, style: TextStyle(color: Colors.white)),
+      onTap: () {
+        Navigator.pushNamed(
+            context,
+            ViewPostPage.routeName,
+            arguments: ViewPostArguments(
+                post
+            )
+        );
+      }
     );
   }
 }
