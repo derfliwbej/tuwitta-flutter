@@ -55,7 +55,6 @@ class _ViewPostPageState extends State<ViewPostPage> {
         body: Column(
             children: [
               Expanded(
-                // TODO: Make Expanded's child a single class containing the keme
                 child: SingleChildScrollView(
                     child: Column(
                         children: [

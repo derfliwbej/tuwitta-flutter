@@ -17,6 +17,7 @@ import '../utils/secure_storage.dart';
 import '../utils/route_observer.dart';
 
 import '../models/PostModel.dart';
+import '../models/UserModel.dart';
 
 Future<http.Response> authRequest() async {
   final token = await SecureStorage.getToken();
@@ -44,6 +45,17 @@ Future<void> logout() async {
   print("Logout status: ${res.statusCode}");
 }
 
+Future<http.Response> searchUser(String username) async {
+  final token = await SecureStorage.getToken();
+
+  return http.get(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/user/$username"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      });
+}
+
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
 
@@ -55,6 +67,7 @@ class _FeedPageState extends State<FeedPage> {
   String? username;
   List<Post> _currentPosts = [];
   ScrollController _scrollController = ScrollController();
+  TextEditingController _usernameTextFieldController = TextEditingController();
   bool hasMore = true;
   bool isLoading = false;
 
@@ -157,6 +170,78 @@ class _FeedPageState extends State<FeedPage> {
       });
     }
   }
+
+  InputDecoration textFieldStyle(String label) {
+    return InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: const Color(0xFF425364)),
+        hintStyle: TextStyle(color: const Color(0xFF425364)),
+        focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.blue,
+            )
+        ),
+        enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: const Color(0xFF425364),
+            )
+        )
+    );
+  }
+
+  Future<void> _displayUsernameInputDialog(BuildContext context) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Enter username to search'),
+          backgroundColor: const Color(0xFF15202b),
+          content: TextField(
+            controller: _usernameTextFieldController,
+            decoration: textFieldStyle('Username'),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: Text('CANCEL'),
+              onPressed: () {
+                _usernameTextFieldController.clear();
+                Navigator.pop(context);
+              }
+            ),
+            ElevatedButton(
+              child: const Text('SEARCH'),
+              onPressed: () async {
+                String username = _usernameTextFieldController.text;
+
+                http.Response res = await searchUser(username);
+
+                if(res.statusCode == 200) {
+                  User user = User.fromJson(jsonDecode(res.body)["data"]);
+
+                  String firstName = user.firstName;
+                  String lastName = user.lastName;
+
+                  _usernameTextFieldController.clear();
+
+                  Navigator.pushNamed(
+                      context,
+                      ViewProfilePage.routeName,
+                      arguments: ViewProfileArguments(
+                          username!, firstName!, lastName!
+                      )
+                  );
+
+                } else {
+                  print("NO SUCH USER");
+                  _usernameTextFieldController.clear();
+                }
+              }
+            )
+          ]
+        );
+      }
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -185,7 +270,15 @@ class _FeedPageState extends State<FeedPage> {
         title: const Icon(
             FontAwesomeIcons.twitter,
             color: Colors.white,
-        )
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              _displayUsernameInputDialog(context);
+            }
+          )
+        ]
       ),
       body: SafeArea(
         child: _currentPosts.isNotEmpty ? ListView.separated(
