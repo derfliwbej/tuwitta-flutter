@@ -90,7 +90,7 @@ class PostWidget extends StatelessWidget {
               CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.blue.withOpacity(0.0),
-                child: Image.asset("assets/user_icon.jpg"),
+                backgroundImage: AssetImage("assets/user_icon.jpg"),
               ),
               SizedBox(width: 15.0),
               Text(post.username, style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),

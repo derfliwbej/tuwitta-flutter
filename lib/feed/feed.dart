@@ -169,7 +169,7 @@ class _FeedPageState extends State<FeedPage> {
             icon: CircleAvatar(
               radius: 18,
               backgroundColor: Colors.blue.withOpacity(0.0),
-              child: Image.asset("assets/profile_icon.png"),
+              backgroundImage: AssetImage("assets/profile_icon.png"),
             ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
@@ -274,7 +274,7 @@ class _DrawerWidgetState extends State<DrawerWidget>  with RouteAware {
                       CircleAvatar(
                         radius: 40,
                         backgroundColor: Colors.blue.withOpacity(0.0),
-                        child: Image.asset("assets/profile_icon.png"),
+                        backgroundImage: AssetImage("assets/profile_icon.png"),
                       ),
                       SizedBox(height: 10.0),
                       Text('@$username'),
@@ -332,7 +332,7 @@ class PostItem extends StatelessWidget {
       leading: CircleAvatar(
         radius: 18,
         backgroundColor: Colors.blue.withOpacity(0.0),
-        child: Image.asset("assets/user_icon.jpg"),
+        backgroundImage: AssetImage("assets/user_icon.jpg"),
       ),
       title: Text(post.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
       subtitle: Text(post.text, style: TextStyle(color: Colors.white)),

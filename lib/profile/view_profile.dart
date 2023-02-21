@@ -46,7 +46,7 @@ class ProfileHeader extends StatelessWidget {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.blue.withOpacity(0.0),
-                child: Image.asset("assets/profile_icon.png"),
+                backgroundImage: AssetImage("assets/profile_icon.png"),
               ),
               Text(
                 '@$username',
