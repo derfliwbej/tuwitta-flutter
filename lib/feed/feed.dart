@@ -56,6 +56,23 @@ Future<http.Response> searchUser(String username) async {
       });
 }
 
+Future<http.Response> createPost(String body) async {
+  final token = await SecureStorage.getToken();
+
+  return http.post(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, Object>{
+        "text": body,
+        "public": true,
+      })
+  );
+}
+
 class FeedPage extends StatefulWidget {
   const FeedPage({Key? key}) : super(key: key);
 
@@ -68,6 +85,7 @@ class _FeedPageState extends State<FeedPage> {
   List<Post> _currentPosts = [];
   ScrollController _scrollController = ScrollController();
   TextEditingController _usernameTextFieldController = TextEditingController();
+  TextEditingController _postTextFieldController = TextEditingController();
   bool hasMore = true;
   bool isLoading = false;
 
@@ -242,6 +260,54 @@ class _FeedPageState extends State<FeedPage> {
       }
     );
   }
+
+  Future<void> _displayPostInputDialog(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: const Text('Create a post'),
+              backgroundColor: const Color(0xFF15202b),
+              content: TextField(
+                controller: _postTextFieldController,
+                decoration: textFieldStyle('Enter content'),
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                    child: Text('CANCEL'),
+                    onPressed: () {
+                      _postTextFieldController.clear();
+                      Navigator.pop(context);
+                    }
+                ),
+                ElevatedButton(
+                    child: const Text('POST'),
+                    onPressed: () async {
+                      String body = _postTextFieldController.text;
+
+                      http.Response res = await createPost(body);
+
+                      if(res.statusCode == 200) {
+                        Post newPost = Post.fromJson(jsonDecode(res.body)["data"]);
+
+                        setState(() {
+                          isLoading = false;
+                          _currentPosts.insert(0, newPost);
+                        });
+
+                        _postTextFieldController.clear();
+                        Navigator.pop(context);
+                      } else {
+                        print(res.statusCode);
+                        _postTextFieldController.clear();
+                      }
+                    }
+                )
+              ]
+          );
+        }
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -279,6 +345,13 @@ class _FeedPageState extends State<FeedPage> {
             }
           )
         ]
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _displayPostInputDialog(context);
+        },
+        backgroundColor: Colors.lightBlueAccent,
+        child: const Icon(FontAwesomeIcons.feather, color: Colors.white)
       ),
       body: SafeArea(
         child: _currentPosts.isNotEmpty ? ListView.separated(
