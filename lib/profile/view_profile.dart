@@ -27,6 +27,18 @@ Future<http.Response> editPost(String id, String body) async {
   );
 }
 
+Future<http.Response> deletePost(String id) async {
+  final token = await SecureStorage.getToken();
+
+  return http.delete(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post/$id"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+}
+
 class ViewProfilePage extends StatelessWidget {
   const ViewProfilePage({Key? key}) : super(key: key);
 
@@ -270,6 +282,42 @@ class _PostItemState extends State<PostItem> {
     );
   }
 
+  Future<void> _displayConfirmDeleteDialog(BuildContext context, String postId) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: const Text('Delete Confirmation'),
+              backgroundColor: const Color(0xFF15202b),
+              content: const Text('Are you sure you want to delete this post?'),
+              actions: <Widget>[
+                ElevatedButton(
+                    child: Text('CANCEL'),
+                    onPressed: () {
+                      _editTextFieldController.clear();
+                      Navigator.pop(context);
+                    }
+                ),
+                ElevatedButton(
+                    child: const Text('DELETE'),
+                    onPressed: () async {
+                      http.Response res = await deletePost(postId);
+
+                      if(res.statusCode == 200) {
+                        widget.getPosts();
+                      } else {
+                        print("ERROR DELETING");
+                      }
+
+                      Navigator.pop(context);
+                    }
+                )
+              ]
+          );
+        }
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -295,7 +343,7 @@ class _PostItemState extends State<PostItem> {
                       icon: Icon(FontAwesomeIcons.trash),
                       color: Colors.white,
                       onPressed: () {
-                        // TODO: Logic for deleting post
+                        _displayConfirmDeleteDialog(context, widget.post.id);
                       }
                   )
                 ]
