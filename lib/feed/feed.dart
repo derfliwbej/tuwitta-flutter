@@ -20,17 +20,7 @@ import '../utils/message_dialog.dart';
 import '../models/PostModel.dart';
 import '../models/UserModel.dart';
 
-Future<http.Response> authRequest() async {
-  final token = await SecureStorage.getToken();
-
-  return http.get(
-    Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/user"),
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
-}
-
+// Function for logging the user out
 Future<void> logout() async {
   final token = await SecureStorage.getToken();
 
@@ -42,10 +32,9 @@ Future<void> logout() async {
       'Authorization': 'Bearer $token'
     }
   );
-
-  print("Logout status: ${res.statusCode}");
 }
 
+// Function for searching a user given the username
 Future<http.Response> searchUser(String username) async {
   final token = await SecureStorage.getToken();
 
@@ -57,6 +46,7 @@ Future<http.Response> searchUser(String username) async {
       });
 }
 
+// Function for creating a post given the post's text
 Future<http.Response> createPost(String body) async {
   final token = await SecureStorage.getToken();
 
@@ -101,6 +91,7 @@ class _FeedPageState extends State<FeedPage> {
     super.initState();
   }
 
+  // Get posts on initial render
   Future getInitialPosts() async {
     if(isLoading) return;
 
@@ -144,6 +135,7 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  // Add additional posts when scrolling down
   Future addPosts() async {
     if (isLoading) return;
 
@@ -188,6 +180,7 @@ class _FeedPageState extends State<FeedPage> {
     }
   }
 
+  // Create the text field's style given the input's label
   InputDecoration textFieldStyle(String label) {
     return InputDecoration(
         labelText: label,
@@ -206,6 +199,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
+  // Function to show a dialog for inputting the username to search
   Future<void> _displayUsernameInputDialog(BuildContext context) async {
     return showDialog(
       context: context,
@@ -261,6 +255,7 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
+  // Function to show an input dialog for creating a post
   Future<void> _displayPostInputDialog(BuildContext context) async {
     return showDialog(
         context: context,

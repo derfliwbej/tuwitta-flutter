@@ -24,6 +24,7 @@ class EditProfilePage extends StatelessWidget {
   }
 }
 
+// Widget for the Form
 class FormWidget extends StatefulWidget {
   const FormWidget({Key? key}) : super(key: key);
 
@@ -42,6 +43,11 @@ class _FormWidgetState extends State<FormWidget> {
   FocusNode oldPasswordNode = new FocusNode();
   FocusNode newPasswordNode = new FocusNode();
 
+  /// Generates the app's theme of the input style given a label
+  ///
+  /// @param label           The label of the input
+  ///
+  /// @return                Instance of an InputDecoration with the defined styles
   InputDecoration inputStyle(String label) {
     return InputDecoration(
         labelText: label,
@@ -69,6 +75,7 @@ class _FormWidgetState extends State<FormWidget> {
     super.dispose();
   }
 
+  // Clears the form
   void clearFields() {
     _firstNameController.clear();
     _lastNameController.clear();
@@ -76,6 +83,14 @@ class _FormWidgetState extends State<FormWidget> {
     _newPasswordController.clear();
   }
 
+  /// Converts a collection of data to a map.
+  ///
+  /// @param firstName         The value of the firstName attribute of the map
+  /// @param lastName          The value of the lastName attribute of the map
+  /// @param oldPassword       The value of the oldPassword attribute of the map
+  /// @param newPassword       The value of the newPassword attribute of the map
+  ///
+  /// @return                  A map with values for the the attributes firstName, lastName, oldPassword, and newPassword
   Map<String, String> toMap(String firstName, String lastName, String oldPassword, String newPassword) {
     Map<String, String> map = new Map<String, String>();
 
@@ -87,6 +102,14 @@ class _FormWidgetState extends State<FormWidget> {
     return map;
   }
 
+  /// Saves the new user details after finishing editing.
+  ///
+  /// @param firstName           The newly inputted first name
+  /// @param lastName            The newly inputted last name
+  /// @param oldPassword         The current password to change
+  /// @param newPassword         The new password to change in to
+  ///
+  /// @return                    The HTTP response of the request
   Future<http.Response> save(String firstName, String lastName, String oldPassword, String newPassword) async {
     final token = await SecureStorage.getToken();
     final username = await SecureStorage.getUsername();
@@ -147,6 +170,7 @@ class _FormWidgetState extends State<FormWidget> {
           SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                // Function to call upon saving changes
                 onPressed: () async {
                   String firstName = _firstNameController.text;
                   String lastName = _lastNameController.text;
@@ -154,7 +178,6 @@ class _FormWidgetState extends State<FormWidget> {
                   String newPassword = _newPasswordController.text;
 
                   http.Response res = await save(firstName, lastName, oldPassword, newPassword);
-
 
                   if(res.statusCode == 200) {
                     if(firstName.isNotEmpty) await SecureStorage.setFirstName(firstName);

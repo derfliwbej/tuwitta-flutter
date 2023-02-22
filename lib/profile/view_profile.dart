@@ -11,6 +11,14 @@ import '../utils/message_dialog.dart';
 
 import '../models/PostModel.dart';
 
+/**
+ * Edit a post given the post's id and the new text
+ *
+ * @param id        The id of the post to edit
+ * @param body      The new text of the post to edit
+ *
+ * @return          A HTTP response of the PUT request
+ */
 Future<http.Response> editPost(String id, String body) async {
   final token = await SecureStorage.getToken();
 
@@ -28,6 +36,13 @@ Future<http.Response> editPost(String id, String body) async {
   );
 }
 
+/**
+ * Delete a post given the post's id
+ *
+ * @param id        The id of the post to edit
+ *
+ * @return          A HTTP response of the DELETE request
+ */
 Future<http.Response> deletePost(String id) async {
   final token = await SecureStorage.getToken();
 
@@ -118,6 +133,7 @@ class _UserPostsState extends State<UserPosts> {
   List<Post> _currentPosts = [];
   bool hasMore = true;
 
+  // Gets the posts on initial render
   Future getInitialPosts() async {
     if(isLoading) return;
 
@@ -160,7 +176,6 @@ class _UserPostsState extends State<UserPosts> {
         _currentPosts = postsList;
       });
 
-      print(isLoading);
     } else {
       setState(() {
         isLoading = false;
@@ -168,6 +183,7 @@ class _UserPostsState extends State<UserPosts> {
     }
   }
 
+  // Set the current user on this widget's state to the value of the username in the secure storage
   void setCurrentUser() async {
     String username = await SecureStorage.getUsername() as String;
 
@@ -218,6 +234,7 @@ class PostItem extends StatefulWidget {
 class _PostItemState extends State<PostItem> {
   TextEditingController _editTextFieldController = TextEditingController();
 
+  // Create an InputDecoration instance for a text field given a label
   InputDecoration textFieldStyle(String label) {
     return InputDecoration(
         labelText: label,
@@ -236,6 +253,12 @@ class _PostItemState extends State<PostItem> {
     );
   }
 
+  /// Shows the input dialog for editing a post.
+  ///
+  /// @param context         The Build Context of the widget where this function is called from.
+  /// @param postId          The id of the post to edit
+  ///
+  /// @return                A showDialog widget
   Future<void> _displayEditInputDialog(BuildContext context, String postId) async {
     return showDialog(
         context: context,
@@ -262,9 +285,6 @@ class _PostItemState extends State<PostItem> {
 
                       http.Response res = await editPost(postId, body);
 
-                      print(postId);
-                      print(body);
-
                       if(res.statusCode == 200) {
                         _editTextFieldController.clear();
 
@@ -283,6 +303,12 @@ class _PostItemState extends State<PostItem> {
     );
   }
 
+  /// Shows the confirm dialog for deleting a post.
+  ///
+  /// @param context         The Build Context of the widget where this function is called from.
+  /// @param postId          The id of the post to delete
+  ///
+  /// @return                A showDialog widget
   Future<void> _displayConfirmDeleteDialog(BuildContext context, String postId) async {
     return showDialog(
         context: context,

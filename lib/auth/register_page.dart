@@ -10,6 +10,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+// Function for creating a user given a username, password, first name, and last name
 Future<http.Response> register(String username, String password, String firstName, String lastName) {
   const token = "Zxi!!YbZ4R9GmJJ!h5tJ9E5mghwo4mpBs@*!BLoT6MFLHdMfUA%";
 
@@ -29,6 +30,7 @@ Future<http.Response> register(String username, String password, String firstNam
   );
 }
 
+// Function for logging a user in given a username and password
 Future<http.Response> login(String username, String password) async {
   return http.post(
       Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/login"),

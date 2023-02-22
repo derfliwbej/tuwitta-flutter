@@ -35,6 +35,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
     super.initState();
   }
 
+  // Add a comment to the list of comments given an object instance of the Comment class
   void addReply(Comment comment) {
     setState(() {
       comments.add(comment);
@@ -116,6 +117,7 @@ class _CommentsListState extends State<CommentsList> {
   bool isLoading = false;
   bool hasMore = true;
 
+  // Gets the comments on a post upon initial render
   Future getInitialComments() async {
     if (isLoading) return;
 
@@ -190,6 +192,7 @@ class _ReplyFieldState extends State<ReplyField> {
   final replyFieldController = TextEditingController();
   bool isAddingComment = false;
 
+  // Adds a comment to a post given the post's id
   Future addComment(String postId) async {
     if(isAddingComment) return;
 

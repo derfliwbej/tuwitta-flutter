@@ -10,9 +10,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+// Function for logging a user in given a username and a password
 Future<http.Response> login(String username, String password) {
-  print('${username} ${password}');
-
   return http.post(
     Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/login"),
     headers: {
@@ -26,6 +25,7 @@ Future<http.Response> login(String username, String password) {
   );
 }
 
+// Function for getting all of the user's info given a username
 Future<http.Response> getUserInfo(String username) async {
   final token = await SecureStorage.getToken();
 
