@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/secure_storage.dart';
+import '../utils/message_dialog.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -165,10 +166,10 @@ class _RegisterFormState extends State<RegisterForm> {
 
                           Navigator.pushNamed(context, '/feed');
                         } else {
-                          print("Login failed. Status code: ${loginRes.statusCode}");
+                          displayMessageDialog(context, "Error", "Error logging in.");
                         }
                       } else {
-                        print("Register failed. Status code: ${regRes.statusCode}");
+                        displayMessageDialog(context, "Error", "Error creating account.");
                       }
                     },
                     child: const Text('Register', style: TextStyle(fontSize: 16.0)),

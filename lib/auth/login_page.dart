@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../utils/secure_storage.dart';
+import '../utils/message_dialog.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -149,16 +150,14 @@ class _LoginFormState extends State<LoginForm> {
                   await SecureStorage.setFirstName(firstName);
                   await SecureStorage.setLastName(lastName);
 
-                  print("Printing token!");
-                  print(token);
-
-                  print("Printing first and last name!");
-                  print("$firstName $lastName");
-
                   Navigator.pushNamed(context, '/feed');
-                } else {
-                  print('Login failed. Status code: ${res.statusCode}');
-                }
+                } else if (res.statusCode == 400) displayMessageDialog(context, "Malformed Request", "Please try logging in again.");
+                else if (res.statusCode == 404) displayMessageDialog(context, "User Not Found", "The username and password you entered does not match our records.");
+                else if (res.statusCode == 401) displayMessageDialog(context, "Invalid Password", "The password you entered was invalid.");
+                else displayMessageDialog(context, "Error", "Error logging in. Please try again later.");
+
+                _usernameController.clear();
+                _passwordController.clear();
               },
               child: const Text('Login', style: TextStyle(fontSize: 16.0)),
               style: buttonStyle,

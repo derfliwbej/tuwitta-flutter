@@ -15,6 +15,7 @@ import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
 import '../utils/route_observer.dart';
+import '../utils/message_dialog.dart';
 
 import '../models/PostModel.dart';
 import '../models/UserModel.dart';
@@ -161,8 +162,6 @@ class _FeedPageState extends State<FeedPage> {
           'Authorization': 'Bearer $token'
         });
 
-    print(res.statusCode);
-
     if(res.statusCode == 200) {
       List<Post> newPosts = jsonDecode(res.body)["data"].map<Post>((post) {
         return Post.fromJson(post);
@@ -249,10 +248,11 @@ class _FeedPageState extends State<FeedPage> {
                       )
                   );
 
-                } else {
-                  print("NO SUCH USER");
-                  _usernameTextFieldController.clear();
-                }
+                } else if (res.statusCode == 404) {
+                  displayMessageDialog(context, "User Not Found", "User does not exist.");
+                } else displayMessageDialog(context, "Error", "Error while searching for user.");
+
+                _usernameTextFieldController.clear();
               }
             )
           ]
@@ -298,7 +298,7 @@ class _FeedPageState extends State<FeedPage> {
                         _postTextFieldController.clear();
                         Navigator.pop(context);
                       } else {
-                        print(res.statusCode);
+                        displayMessageDialog(context, "Error", "Error creating post.");
                         _postTextFieldController.clear();
                       }
                     }

@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../utils/secure_storage.dart';
+import '../utils/message_dialog.dart';
 
 import '../models/PostModel.dart';
 
@@ -269,7 +270,7 @@ class _PostItemState extends State<PostItem> {
 
                         widget.getPosts();
                       } else {
-                        print("ERROR EDITING");
+                        displayMessageDialog(context, "Error", "Error editing post.");
                         _editTextFieldController.clear();
                       }
 
@@ -306,7 +307,7 @@ class _PostItemState extends State<PostItem> {
                       if(res.statusCode == 200) {
                         widget.getPosts();
                       } else {
-                        print("ERROR DELETING");
+                        displayMessageDialog(context, "Error", "Error deleting post.");
                       }
 
                       Navigator.pop(context);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/secure_storage.dart';
+import '../utils/message_dialog.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -154,14 +155,11 @@ class _FormWidgetState extends State<FormWidget> {
 
                   http.Response res = await save(firstName, lastName, oldPassword, newPassword);
 
-                  print(res.statusCode);
 
                   if(res.statusCode == 200) {
-                    // Save updated information to secure storage
-                    print("SUCCESS");
                     if(firstName.isNotEmpty) await SecureStorage.setFirstName(firstName);
                     if(lastName.isNotEmpty) await SecureStorage.setLastName(lastName);
-                  }
+                  } else displayMessageDialog(context, "Error", "Error in editing profile.");
 
                   clearFields();
                 },
