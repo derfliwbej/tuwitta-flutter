@@ -10,6 +10,23 @@ import '../utils/secure_storage.dart';
 
 import '../models/PostModel.dart';
 
+Future<http.Response> editPost(String id, String body) async {
+  final token = await SecureStorage.getToken();
+
+  return http.put(
+      Uri.parse("https://cmsc-23-2022-bfv6gozoca-as.a.run.app/api/post/$id"),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(<String, Object>{
+        "text": body,
+        "public": true,
+      })
+  );
+}
+
 class ViewProfilePage extends StatelessWidget {
   const ViewProfilePage({Key? key}) : super(key: key);
 
@@ -127,7 +144,7 @@ class _UserPostsState extends State<UserPosts> {
 
       setState(() {
         isLoading = false;
-        _currentPosts.addAll(postsList);
+        _currentPosts = postsList;
       });
 
       print(isLoading);
@@ -163,7 +180,7 @@ class _UserPostsState extends State<UserPosts> {
             itemCount: _currentPosts.length + 1,
             itemBuilder: (BuildContext context, int index) {
               if(index < _currentPosts.length) {
-                return PostItem(post: _currentPosts[index], currentUser: currentUser);
+                return PostItem(post: _currentPosts[index], currentUser: currentUser, getPosts: getInitialPosts);
               } else {
                 return Padding(padding: EdgeInsets.only(top: 15.0, bottom: 15.0), child: Center(child: hasMore && isLoading ? CircularProgressIndicator() : Container()));
               }
@@ -174,42 +191,115 @@ class _UserPostsState extends State<UserPosts> {
   }
 }
 
-class PostItem extends StatelessWidget {
+class PostItem extends StatefulWidget {
   final Post post;
   final String currentUser;
+  final Function() getPosts;
 
-  const PostItem({ Key? key, required this.post, required this.currentUser }) : super(key: key);
+  const PostItem({Key? key, required this.post, required this.currentUser, required this.getPosts }) : super(key: key);
+
+  @override
+  State<PostItem> createState() => _PostItemState();
+}
+
+class _PostItemState extends State<PostItem> {
+  TextEditingController _editTextFieldController = TextEditingController();
+
+  InputDecoration textFieldStyle(String label) {
+    return InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: const Color(0xFF425364)),
+        hintStyle: TextStyle(color: const Color(0xFF425364)),
+        focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.blue,
+            )
+        ),
+        enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(
+              color: const Color(0xFF425364),
+            )
+        )
+    );
+  }
+
+  Future<void> _displayEditInputDialog(BuildContext context, String postId) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+              title: const Text('Enter new text'),
+              backgroundColor: const Color(0xFF15202b),
+              content: TextField(
+                controller: _editTextFieldController,
+                decoration: textFieldStyle('New text'),
+              ),
+              actions: <Widget>[
+                ElevatedButton(
+                    child: Text('CANCEL'),
+                    onPressed: () {
+                      _editTextFieldController.clear();
+                      Navigator.pop(context);
+                    }
+                ),
+                ElevatedButton(
+                    child: const Text('SAVE'),
+                    onPressed: () async {
+                      String body = _editTextFieldController.text;
+
+                      http.Response res = await editPost(postId, body);
+
+                      print(postId);
+                      print(body);
+
+                      if(res.statusCode == 200) {
+                        _editTextFieldController.clear();
+
+                        widget.getPosts();
+                      } else {
+                        print("ERROR EDITING");
+                        _editTextFieldController.clear();
+                      }
+
+                      Navigator.pop(context);
+                    }
+                )
+              ]
+          );
+        }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-        key: ValueKey<String>(post.id),
+        key: ValueKey<String>(widget.post.id),
         leading: CircleAvatar(
           radius: 18,
           backgroundColor: Colors.blue.withOpacity(0.0),
           backgroundImage: AssetImage("assets/user_icon.jpg"),
         ),
-        title: Text(post.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
-        subtitle: Text(post.text, style: TextStyle(color: Colors.white)),
-        trailing: currentUser == post.username ? FittedBox(
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(FontAwesomeIcons.pencil),
-                color: Colors.white,
-                onPressed: () {
-                  // TODO: Logic for editing post
-                }
-              ),
-              IconButton(
-                icon: Icon(FontAwesomeIcons.trash),
-                color: Colors.white,
-                onPressed: () {
-                  // TODO: Logic for deleting post
-                }
-              )
-            ]
-          )
+        title: Text(widget.post.username, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0)),
+        subtitle: Text(widget.post.text, style: TextStyle(color: Colors.white)),
+        trailing: widget.currentUser == widget.post.username ? FittedBox(
+            child: Row(
+                children: [
+                  IconButton(
+                      icon: Icon(FontAwesomeIcons.pencil),
+                      color: Colors.white,
+                      onPressed: () {
+                        _displayEditInputDialog(context, widget.post.id);
+                      }
+                  ),
+                  IconButton(
+                      icon: Icon(FontAwesomeIcons.trash),
+                      color: Colors.white,
+                      onPressed: () {
+                        // TODO: Logic for deleting post
+                      }
+                  )
+                ]
+            )
         ) : const FittedBox()
     );
   }
