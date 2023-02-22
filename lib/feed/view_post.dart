@@ -35,8 +35,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
     super.initState();
   }
 
-  // TODO: Fix comment display layout, fix add reply
-  void mockReply(Comment comment) {
+  void addReply(Comment comment) {
     setState(() {
       comments.add(comment);
     });
@@ -65,7 +64,7 @@ class _ViewPostPageState extends State<ViewPostPage> {
                     )
                 ),
               ),
-              ReplyField(post: post, comments: comments, mockReply: mockReply)
+              ReplyField(post: post, comments: comments, addReply: addReply)
             ]
         )
     );
@@ -138,7 +137,6 @@ class _CommentsListState extends State<CommentsList> {
 
     if(res.statusCode == 200) {
       List<Comment> comments = jsonDecode(res.body)["data"].map<Comment>((comment) {
-        print(comment);
         return Comment.fromJson(comment);
       }).toList();
 
@@ -150,16 +148,10 @@ class _CommentsListState extends State<CommentsList> {
 
       setState(() {
         widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
-        widget.comments.addAll(comments);
+        isLoading = false;
       });
+    } else {
+      print("ERROR RETRIEVING COMMENTS");
     }
   }
 
@@ -175,20 +167,10 @@ class _CommentsListState extends State<CommentsList> {
     final comments = widget.comments;
     int commentCount = 0;
 
-    if(comments.isNotEmpty) {
-      return Column(
+    return !isLoading ? Column(
         children: comments.map<CommentItem>((comment) {
           return CommentItem(comment: comment);
         }).toList()
-      );
-    } else {
-      return CircularProgressIndicator();
-    }
-
-    return comments.isNotEmpty ? Column(
-      children: [
-        for(var comment in comments) CommentItem(comment: comment)
-      ]
     ) : CircularProgressIndicator();
   }
 }
@@ -196,9 +178,9 @@ class _CommentsListState extends State<CommentsList> {
 class ReplyField extends StatefulWidget {
   final Post post;
   final List<Comment> comments;
-  final Function mockReply;
+  final Function addReply;
 
-  const ReplyField({ Key? key, required this.post, required this.comments, required this.mockReply }) : super(key: key);
+  const ReplyField({ Key? key, required this.post, required this.comments, required this.addReply }) : super(key: key);
 
   @override
   State<ReplyField> createState() => _ReplyFieldState();
@@ -222,18 +204,25 @@ class _ReplyFieldState extends State<ReplyField> {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
-      }
+      },
+      body: jsonEncode(<String, String>{
+        "text": replyFieldController.text
+      })
     );
 
     if(res.statusCode == 200) {
       Comment newComment = Comment.fromJson(jsonDecode(res.body)["data"]);
 
-      widget.comments.add(newComment);
+      widget.addReply(newComment);
 
       setState(() {
         isAddingComment = false;
       });
+    } else {
+      print("ERROR ADDING COMMENT");
     }
+
+    replyFieldController.clear();
   }
 
   @override
@@ -301,8 +290,9 @@ class _ReplyFieldState extends State<ReplyField> {
                     ElevatedButton(
                         child: const Text('Reply', style: const TextStyle(fontSize: 16.0)),
                         onPressed: () {
-                          Comment newComment = new Comment(id: "asd", text: "asd", postId: "asd", username: "asd", date: 123);
-                          widget.mockReply(newComment);
+                          // Comment newComment = new Comment(id: "asd", text: "asd", postId: "asd", username: "asd", date: 123);
+                          // widget.mockReply(newComment);
+                          addComment(widget.post.id);
                         },
                         style: replyButtonStyle
                     )
@@ -324,8 +314,8 @@ class CommentItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       key: ValueKey<String>(comment.id),
-      title: Text(comment.username),
-      subtitle: Text(comment.text),
+      title: Text(comment.username, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(comment.text, style: const TextStyle(color: Colors.white)),
     );
   }
 }
